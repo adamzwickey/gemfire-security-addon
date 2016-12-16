@@ -1,0 +1,67 @@
+#!/bin/bash
+KEYTOOL_PATH=/var/vcap/packages/jdk8/bin/keytool
+
+# Need to loop through each certificate and import
+<% p('client_certs').each do |client| %>
+  <%  cert_alias = client['alias']
+      certificate = client['cert']
+      revoke = client['revoke']
+      if cert_alias.nil? || cert_alias.empty?
+        raise "Client Certificate must be configured with an 'alias' attribute. '#{client}'"
+      end
+      if revoke != true && (certificate.nil? || certificate.empty?)
+        raise "Client Certificate must be configure in 'cert' attribute. '#{client}'"
+      end
+  %>
+
+  <%  if revoke == true %>
+        $KEYTOOL_PATH -list \
+        -keystore <%= p('truststore') %> \
+        -storepass <%= p('storepass') %> \
+        -alias <%=cert_alias%> | grep Exception
+        RESULT=$?
+        if [ $RESULT -eq 0 ]; then
+          echo "Certificate did not exist in truststore, no need to revoke"
+        else
+          $KEYTOOL_PATH -delete \
+          -keystore <%= p('truststore') %> \
+          -storepass <%= p('storepass') %> \
+          -alias <%=cert_alias%>
+        fi
+        echo 'Client with alias[<%=cert_alias%>] removed to truststore'
+  <%  else %>
+        # Write cert to filesystem
+        echo '<%=certificate%>' > <%=cert_alias%>.cer
+
+        # If Cert already exists we have to remove it first
+        $KEYTOOL_PATH -list \
+        -keystore <%= p('truststore') %> \
+        -storepass <%= p('storepass') %> \
+        -alias <%=cert_alias%> | grep Exception
+        RESULT=$?
+        if [ $RESULT -eq 0 ]; then
+          echo "Certificate doesn't already exist in truststore"
+        else
+          echo "Certificate exists in truststore, removing old one first"
+          $KEYTOOL_PATH -delete \
+          -keystore <%= p('truststore') %> \
+          -storepass <%= p('storepass') %> \
+          -alias <%=cert_alias%>
+        fi
+
+        # Import into existing truststore
+        $KEYTOOL_PATH -import \
+        -file <%=cert_alias%>.cer \
+        -alias <%=cert_alias%> \
+        -keystore <%= p('truststore') %> \
+        -storepass <%= p('storepass') %> \
+        -noprompt
+
+        echo 'Client with alias[<%=cert_alias%>] added to truststore'
+  <%  end %>
+
+<% end %>
+
+$KEYTOOL_PATH -list \
+-keystore <%= p('truststore') %> \
+-storepass <%= p('storepass') %>

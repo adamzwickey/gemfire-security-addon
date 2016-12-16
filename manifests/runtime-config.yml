@@ -1,0 +1,42 @@
+---
+releases:
+- name: gemfire-pkcs-authentication
+  version: 0+dev.13
+addons:
+- name: gf-ath
+  include:
+    deployments:
+    - tmo-gemfire
+    jobs:
+    - name: server-group
+      release: GemFire
+  jobs:
+  - name: gemfire_pkcs_authentication
+    release: gemfire-pkcs-authentication
+    properties:
+      truststore: /usr/local/share/ca-certificates/gemfire.cer
+      storepass: tmo123
+      client_certs:
+        - alias: test-client-cert
+          cert: |
+            -----BEGIN CERTIFICATE-----
+            MIIDKzCCAhOgAwIBAgIEZUa2kDANBgkqhkiG9w0BAQsFADBGMQswCQYDVQQGEwJVUzERMA8GA1UE
+            ChMIR2VtU3RvbmUxEDAOBgNVBAsTB0dlbUZpcmUxEjAQBgNVBAMTCVlvdXIgTmFtZTAeFw0xNjEy
+            MDgyMTQwMjRaFw0xNzA2MDYyMTQwMjRaMEYxCzAJBgNVBAYTAlVTMREwDwYDVQQKEwhHZW1TdG9u
+            ZTEQMA4GA1UECxMHR2VtRmlyZTESMBAGA1UEAxMJWW91ciBOYW1lMIIBIjANBgkqhkiG9w0BAQEF
+            AAOCAQ8AMIIBCgKCAQEAnIK74kHPOZc8R56hN9p/Ccn0wIxICAv8VWs7L8goWnQSnj7bMB3wN8Ao
+            iqmRTOSX/iHj1Y8nBHcAMfiS+F855bvk25Igc5xae6qKehZT5DUN5DiOSQcBPyCdI+awTuI9gvBJ
+            /3kCMGqvVafs737SjsC74nmsXFH2hUDy+83YPUNwFHuwDYD0CuSWFFUmSzRFQ1K/KNpOFOMyAlgu
+            DtQ9B+I2TzBG+ty5m8wu0hokY2aplXo8hILrPCyutmXgMZHGYexz596NfbplSCoiFNH/UIXvV4We
+            TAMJHcl7cPmsi+l9P5P+eF/DLcX18ws1GXhZze0nafDVN5ublCMJzZNLDwIDAQABoyEwHzAdBgNV
+            HQ4EFgQUH6QTYwLrlCvaFKSMxMHxSDT8FCUwDQYJKoZIhvcNAQELBQADggEBAFOArd4BtuNBoKhS
+            epivbU5AYMakd/5KCHjTrgNDJFUCVZSBkybAQ7TH3dpLXV4yHVBKmj4AqCALc90j1zIua4TQd4Bc
+            q/Q+Xywmc+h2gYCTHRskvKLQ8bn8T5VVTkJyFWkkjPo4KjseiDzQ7cR0Pjege157fpO4A6sBOZVF
+            qNYASRTOgUMxnm417w5Xmzrff1McvxYpO89T5WSOmjy/Gg1yuozFzYfqIsFSVUnfQjyD4UpLxR4t
+            /cxVGESPnSO+IWZnaA1Totmtcmi2cvj5WSMicBYzuVjTzJslDqqeJq0hNZUb9VddVsqglY0qN5Ot
+            giic9cfJx2ZWfRZ/CE8BlMM=
+            -----END CERTIFICATE-----
+        - alias: test-client-cert-2
+          revoke: true
+        - alias: test-client-cert2
+          revoke: true
